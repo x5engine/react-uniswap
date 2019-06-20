@@ -20,6 +20,7 @@ function getModalStyle() {
     top: `${top}%`,
     left: `${left}%`,
     transform: `translate(-${top}%, -${left}%)`,
+    maxHeight: '500px',
   };
 }
 
@@ -48,14 +49,17 @@ function SimpleModal(props) {
   };
   const classes = useStyles();
 
-  const userID = props;
-
+  const userProps = props;
+  const { userID } = userProps;
+  console.log(userID);
   return (
     <div>
-      <Button onClick={handleOpen}>Details</Button>
+      <Button variant="contained" onClick={handleOpen}>
+        Details
+      </Button>
       <Modal
-        aria-labelledby="simple-modal-title"
-        aria-describedby="simple-modal-description"
+        aria-labelledby="Transaction Modal"
+        aria-describedby="Show Transaction Info"
         open={open}
         onClose={handleClose}
       >
@@ -63,7 +67,10 @@ function SimpleModal(props) {
           <Typography variant="h6" id="modal-title">
             Transactions
           </Typography>
-          <Paper className={classes.root}>
+          <Paper
+            className={classes.root}
+            style={{ maxHeight: 400, marginTop: 15, overflowY: 'auto' }}
+          >
             <Table className={classes.table}>
               <TableHead>
                 <TableRow>
@@ -75,21 +82,38 @@ function SimpleModal(props) {
               <TableBody>
                 <Query
                   query={QueryGetUserTransaction}
-                  variables={{ where: userID.userID }}
+                  variables={{ user: userID }}
                 >
-                  {({ data, loading, error, fetchMore }) => {
-                    if (error) return <p>{error.message}</p>;
-                    console.log('Modal: ', data);
-                    if (!loading) {
-                      return data.exchanges[0].txs.map(row => (
+                  {({ loading, error, data }) => {
+                    if (error)
+                      return (
                         <TableRow>
-                          <TableCell>{row.tokenAddress}</TableCell>
-                          <TableCell>{row.tokenSymbol}</TableCell>
-                          <TableCell>{row.ethAmount}</TableCell>
+                          <TableCell>{error.message}</TableCell>
                         </TableRow>
-                      ));
-                    }
-                    return <p>Loading...</p>;
+                      );
+                    if (loading)
+                      return (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            Loading...
+                          </TableCell>
+                        </TableRow>
+                      );
+                    if (data.transactions.length === 0)
+                      return (
+                        <TableRow>
+                          <TableCell colSpan={3} align="center">
+                            No Transactions
+                          </TableCell>
+                        </TableRow>
+                      );
+                    return data.transactions.map(row => (
+                      <TableRow key={row.id}>
+                        <TableCell>{row.user}</TableCell>
+                        <TableCell>{row.tokenSymbol}</TableCell>
+                        <TableCell>{row.ethAmount}</TableCell>
+                      </TableRow>
+                    ));
                   }}
                 </Query>
               </TableBody>
