@@ -2,13 +2,23 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import ApolloClient from 'apollo-boost';
 import { ApolloProvider } from 'react-apollo';
+import { InMemoryCache } from 'apollo-cache-inmemory';
 
 import App from './App';
 import './index.css';
 import * as serviceWorker from './serviceWorker';
 
+const cache = new InMemoryCache({
+  cacheRedirects: {
+    Query: {
+      transactions: (_, args, { getCacheKey }) =>
+        getCacheKey({ __typename: 'transactions', id: args.id }),
+    },
+  },
+});
 const client = new ApolloClient({
   uri: 'https://api.thegraph.com/subgraphs/name/graphprotocol/uniswap',
+  cache,
 });
 
 ReactDOM.render(
