@@ -7,7 +7,8 @@ import { QueryGetExchangeData } from '../../graphql/uniswap';
 import './style.css';
 
 function Dashboard() {
-  const query = '';
+  let skip = 0;
+  const first = 20;
   return (
     <React.Fragment>
       <AppBar />
@@ -15,26 +16,37 @@ function Dashboard() {
         <Button btnText="Transfer ETH" />
       </div>
       <div className="container">
-        <Query query={QueryGetExchangeData} variables={{ query }}>
-          {({ data, loading, error, fetchMore }) => {
+        <Query
+          notifyOnNetworkStatusChange
+          query={QueryGetExchangeData}
+          variables={{ first, skip }}
+        >
+          {({ loading, error, data, fetchMore }) => {
             if (error) return <p>{error.message}</p>;
             return (
               <DataTable
                 loading={loading}
-                userData={data || []}
-                onLoadMore={() =>
+                data={data || []}
+                onLoadMore={() => {
                   fetchMore({
                     query: QueryGetExchangeData,
+                    variables: { first, skip },
                     updateQuery: (prevResult, { fetchMoreResult }) => {
-                      const newUserData = fetchMoreResult.data;
-                      return newUserData.length
+                      const newResult = fetchMoreResult;
+                      const newUserData = prevResult;
+                      skip += 20;
+                      for (let i = 0; i < newResult.exchanges.length; i += 1)
+                        newUserData.exchanges.push(
+                          fetchMoreResult.exchanges[i],
+                        );
+                      return newResult.length
                         ? {
-                            userData: [...newUserData, ...prevResult],
+                            data: newUserData.exchanges,
                           }
                         : prevResult;
                     },
-                  })
-                }
+                  });
+                }}
               />
             );
           }}
