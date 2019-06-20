@@ -47,6 +47,7 @@ class CustomizedTables extends Component {
   }
 
   handleOnScroll = () => {
+    const { onLoadMore } = this.props;
     const scrollTop =
       (document.documentElement && document.documentElement.scrollTop) ||
       document.body.scrollTop;
@@ -59,13 +60,15 @@ class CustomizedTables extends Component {
       Math.ceil(scrollTop + clientHeight) >= scrollHeight;
 
     if (scrolledToBottom) {
-      const { onLoadMore } = this.props;
       onLoadMore();
     }
   };
 
   render() {
-    const { classes, userData, loading } = this.props;
+    const { classes, data, loading } = this.props;
+
+    if (!data && loading) return <p>Loading...</p>;
+    const exchanges = data.exchanges || [];
     return (
       <Paper className={classes.root}>
         <Table className={classes.table}>
@@ -78,23 +81,24 @@ class CustomizedTables extends Component {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loading ? (
-              <StyledTableRow key="Loading">
-                <StyledTableCell>Loading...</StyledTableCell>
+            {exchanges.map((row, index) => (
+              <StyledTableRow key={`${row.id}-${index}`}>
+                <StyledTableCell>{row.id}</StyledTableCell>
+                <StyledTableCell align="right">
+                  {row.ethBalance}
+                </StyledTableCell>
+                <StyledTableCell align="right">{row.id}</StyledTableCell>
+                <StyledTableCell align="center">
+                  <SimpleModal userID={row.id} />
+                </StyledTableCell>
               </StyledTableRow>
-            ) : (
-              userData.exchanges.map(row => (
-                <StyledTableRow key={row.id}>
-                  <StyledTableCell>{row.id}</StyledTableCell>
-                  <StyledTableCell align="right">
-                    {row.ethBalance}
-                  </StyledTableCell>
-                  <StyledTableCell align="right">{row.id}</StyledTableCell>
-                  <StyledTableCell align="center">
-                    <SimpleModal userID={row.id} />
-                  </StyledTableCell>
-                </StyledTableRow>
-              ))
+            ))}
+            {loading && (
+              <StyledTableRow>
+                <StyledTableCell colSpan={4} align="center">
+                  Loading...
+                </StyledTableCell>
+              </StyledTableRow>
             )}
           </TableBody>
         </Table>
