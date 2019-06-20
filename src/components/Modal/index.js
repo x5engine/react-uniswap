@@ -35,9 +35,8 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function SimpleModal(props) {
+function TransactionModal(props) {
   const [open, setOpen] = React.useState(false);
-  // getModalStyle is not a pure function, we roll the style only on the first render
   const [modalStyle] = React.useState(getModalStyle);
 
   const handleOpen = () => {
@@ -51,7 +50,6 @@ function SimpleModal(props) {
 
   const userProps = props;
   const { userID } = userProps;
-  console.log(userID);
   return (
     <div>
       <Button variant="contained" onClick={handleOpen}>
@@ -125,4 +123,4 @@ function SimpleModal(props) {
   );
 }
 
-export default SimpleModal;
+export default TransactionModal;
