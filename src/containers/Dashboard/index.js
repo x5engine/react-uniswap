@@ -1,9 +1,8 @@
 import React from 'react';
 import { Query } from 'react-apollo';
 import AppBar from '../../components/AppBar';
-import Button from '../../components/Button';
 import DataTable from '../../components/DataTable';
-import { QueryGetExchangeData } from '../../graphql/uniswap';
+import { QueryGetUserData } from '../../graphql/uniswap';
 import './style.css';
 
 function Dashboard() {
@@ -12,36 +11,31 @@ function Dashboard() {
   return (
     <React.Fragment>
       <AppBar />
-      <div className="btn-transfer">
-        <Button btnText="Transfer ETH" />
-      </div>
       <div className="container">
         <Query
           notifyOnNetworkStatusChange
-          query={QueryGetExchangeData}
+          query={QueryGetUserData}
           variables={{ first, skip }}
         >
           {({ loading, error, data, fetchMore }) => {
             if (error) return <p>{error.message}</p>;
             return (
               <DataTable
-                loading={loading}
-                data={data || []}
+                userLoading={loading}
+                userData={data || []}
                 onLoadMore={() => {
                   fetchMore({
-                    query: QueryGetExchangeData,
+                    query: QueryGetUserData,
                     variables: { first, skip },
                     updateQuery: (prevResult, { fetchMoreResult }) => {
                       const newResult = fetchMoreResult;
                       const newUserData = prevResult;
                       skip += 20;
-                      for (let i = 0; i < newResult.exchanges.length; i += 1)
-                        newUserData.exchanges.push(
-                          fetchMoreResult.exchanges[i],
-                        );
+                      for (let i = 0; i < newResult.users.length; i += 1)
+                        newUserData.users.push(fetchMoreResult.users[i]);
                       return newResult.length
                         ? {
-                            data: newUserData.exchanges,
+                            data: newUserData.users,
                           }
                         : prevResult;
                     },
