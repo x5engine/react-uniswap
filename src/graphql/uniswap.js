@@ -1,24 +1,51 @@
 import gql from 'graphql-tag';
 
-export const QueryGetExchangeData = gql`
-  query GetExchangeData($first: Int!, $skip: Int!) {
-    exchanges(first: $first, skip: $skip) {
+export const QueryGetUserData = gql`
+  query GetUserData($first: Int!, $skip: Int!) {
+    users(first: $first, skip: $skip) {
       id
-      ethBalance
+    }
+  }
+`;
+
+export const QueryGetAllTransactions = gql`
+  query GetAllTransaction {
+    transactions {
+      id
+      user
+      tokenAddress
+      tokenSymbol
     }
   }
 `;
 
 export const QueryGetUserTransaction = gql`
-  query GetUserTransaction($first: String, $id: String) {
-    exchanges(id: $id) {
+  query GetUserTransaction($user: Bytes!) {
+    transactions(where: { user: $user }) {
       id
-      txs(first: 5) {
-        id
-        tokenSymbol
-        tokenAddress
-        ethAmount
-      }
+      user
+      tokenAddress
+      tokenSymbol
+      ethAmount
+    }
+  }
+`;
+
+export const QueryUpdateCache = gql`
+  mutation UpdateCache(
+    $user: Bytes!
+    $tokenSymbol: String!
+    $ethAmount: BigDecimal!
+  ) {
+    updateTransaction(
+      user: $user
+      tokenSymbol: $tokenSymbol
+      ethAmount: $ethAmount
+    ) {
+      id
+      user
+      tokenSymbol
+      ethAmount
     }
   }
 `;
