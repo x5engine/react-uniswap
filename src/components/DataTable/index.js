@@ -71,7 +71,7 @@ class CustomizedTables extends Component {
     const { classes, userData, userLoading } = this.props;
 
     if (!userData && userLoading) return <p>Loading...</p>;
-    const users = userData.users || [];
+    const users = userData.users === undefined ? [] : userData.users;
     return (
       <Paper className={classes.root}>
         <Table className={classes.table}>

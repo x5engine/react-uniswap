@@ -125,6 +125,16 @@ function TransactionModal(props) {
               </TableBody>
             </Table>
           </Paper>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button
+              className={classes.button}
+              variant="contained"
+              color="primary"
+              onClick={handleClose}
+            >
+              Close
+            </Button>
+          </div>
         </div>
       </Modal>
     </div>
