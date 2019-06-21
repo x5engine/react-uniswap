@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Query } from 'react-apollo';
 import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -6,7 +7,9 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import SimpleModal from '../Modal';
+import TransferModal from '../TransferModal';
+import TransactionModal from '../Modal';
+import { QueryGetUserTransaction } from '../../graphql/uniswap';
 
 const StyledTableCell = withStyles(theme => ({
   head: {
@@ -65,10 +68,10 @@ class CustomizedTables extends Component {
   };
 
   render() {
-    const { classes, data, loading } = this.props;
+    const { classes, userData, userLoading } = this.props;
 
-    if (!data && loading) return <p>Loading...</p>;
-    const exchanges = data.exchanges || [];
+    if (!userData && userLoading) return <p>Loading...</p>;
+    const users = userData.users || [];
     return (
       <Paper className={classes.root}>
         <Table className={classes.table}>
@@ -76,24 +79,48 @@ class CustomizedTables extends Component {
             <TableRow>
               <StyledTableCell>User Id</StyledTableCell>
               <StyledTableCell align="right">ETH&nbsp;Balance</StyledTableCell>
-              <StyledTableCell align="right">Token Txs</StyledTableCell>
               <StyledTableCell align="center">Details</StyledTableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {exchanges.map((row, index) => (
-              <StyledTableRow key={`${row.id}-${index}`}>
+            {users.map((row, idx) => (
+              <StyledTableRow key={`${row.id + idx}`}>
                 <StyledTableCell>{row.id}</StyledTableCell>
-                <StyledTableCell align="right">
-                  {row.ethBalance}
-                </StyledTableCell>
-                <StyledTableCell align="right">{row.id}</StyledTableCell>
-                <StyledTableCell align="center">
-                  <SimpleModal userID={row.id} />
+                <Query
+                  query={QueryGetUserTransaction}
+                  variables={{ user: row.id }}
+                  fetchPolicy="cache-first"
+                >
+                  {({ loading, error, data }) => {
+                    if (error)
+                      return (
+                        <TableRow>
+                          <TableCell>{error.message}</TableCell>
+                        </TableRow>
+                      );
+                    if (loading)
+                      return (
+                        <StyledTableCell align="center">
+                          Loading...
+                        </StyledTableCell>
+                      );
+                    let sum = 0;
+                    for (let i = 0; i < data.transactions.length; i += 1)
+                      sum += parseFloat(data.transactions[i].ethAmount);
+                    return (
+                      <StyledTableCell align="right">{sum}</StyledTableCell>
+                    );
+                  }}
+                </Query>
+                <StyledTableCell
+                  style={{ display: 'flex', justifyContent: 'center' }}
+                >
+                  <TransferModal userID={row.id} />
+                  <TransactionModal userID={row.id} />
                 </StyledTableCell>
               </StyledTableRow>
             ))}
-            {loading && (
+            {userLoading && (
               <StyledTableRow>
                 <StyledTableCell colSpan={4} align="center">
                   Loading...
