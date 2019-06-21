@@ -25,6 +25,10 @@ function getModalStyle() {
 }
 
 const useStyles = makeStyles(theme => ({
+  button: {
+    margin: theme.spacing(1),
+    minWidth: '150px',
+  },
   paper: {
     position: 'absolute',
     width: 750,
@@ -52,7 +56,11 @@ function TransactionModal(props) {
   const { userID } = userProps;
   return (
     <div>
-      <Button variant="contained" onClick={handleOpen}>
+      <Button
+        className={classes.button}
+        variant="contained"
+        onClick={handleOpen}
+      >
         Details
       </Button>
       <Modal
