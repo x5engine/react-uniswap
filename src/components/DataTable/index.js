@@ -105,8 +105,9 @@ class CustomizedTables extends Component {
                         </StyledTableCell>
                       );
                     let sum = 0;
-                    for (let i = 0; i < data.transactions.length; i += 1)
-                      sum += parseFloat(data.transactions[i].ethAmount);
+                    if (data.transactions)
+                      for (let i = 0; i < data.transactions.length; i += 1)
+                        sum += parseFloat(data.transactions[i].ethAmount);
                     return (
                       <StyledTableCell align="right">{sum}</StyledTableCell>
                     );

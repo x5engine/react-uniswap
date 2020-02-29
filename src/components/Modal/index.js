@@ -105,7 +105,7 @@ function TransactionModal(props) {
                           </TableCell>
                         </TableRow>
                       );
-                    if (data.transactions.length === 0)
+                    if (!data.transactions)
                       return (
                         <TableRow>
                           <TableCell colSpan={3} align="center">
